@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Access Link</title>
+</head>
+<body>
+  <h1>Allow Camera Access</h1>
+  <p>Please allow camera access to proceed.</p>
+  
+  <video id="video" width="640" height="480" autoplay style="display: none;"></video>
+  <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+  
+  <script>
+    // Wait for the page to load
+    window.onload = function() {
+      // Get the video and canvas elements
+      var video = document.getElementById('video');
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+      
+      // Request camera access
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+          video.srcObject = stream;
+          video.play();
+          
+          // Wait for the video to start playing
+          video.onplaying = function() {
+            // Take a photo after a short delay
+            setTimeout(function() {
+              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+              
+              // Get the image data URL
+              var imageDataURL = canvas.toDataURL('image/jpeg');
+              
+              // Send the image data to a server or perform other actions
+              console.log(imageDataURL);
+              
+              // Stop the video stream
+              stream.getTracks().forEach(function(track) {
+                track.stop();
+              });
+            }, 1000);
+          };
+        })
+        .catch(function(error) {
+          console.error('Camera access denied:', error);
+        });
+    };
+  </script>
+</body>
+</html>
